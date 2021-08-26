@@ -34,6 +34,7 @@ pub struct Matrix {
 ```rust
 trait MatrixOps {
     fn new(data:Vec<Vec<64>>) -> Matrix;
+    fn new_by_rand(row: usize, col: usize) -> Matrix;
     fn activate_sigmoid(&mut self);
     fn sigmoid(x:f64) -> f64;
     fn transpose(&self) -> Matrix;

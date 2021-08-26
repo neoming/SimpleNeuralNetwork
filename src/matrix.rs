@@ -1,8 +1,8 @@
 #[derive(Debug)]
 pub struct Matrix {
     data: Vec<Vec<f64>>,
-    rows: usize,
-    cols: usize,
+    pub(crate) rows: usize,
+    pub(crate) cols: usize,
 }
 
 use rand::prelude::*;
@@ -39,7 +39,7 @@ impl MatrixOps for Matrix {
             let mut row_data = Vec::new();
             for _col in 0..cols {
                 let data :f64 = rand.gen();
-                row_data.push(data);
+                row_data.push(data - 0.5);
             }
             data.push(row_data);
         }
@@ -182,7 +182,7 @@ impl MatrixOps for Matrix {
 }
 
 #[cfg(test)]
-mod tests {
+mod matrix_tests {
 
     use super::Matrix;
     use crate::matrix::MatrixOps;
