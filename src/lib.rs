@@ -1,1 +1,1 @@
-mod matrix;
+pub mod matrix;

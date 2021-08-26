@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug)]
 pub struct Matrix {
     data: Vec<Vec<f64>>,
     rows: usize,
@@ -7,22 +7,29 @@ pub struct Matrix {
 
 use rand::Rng;
 
-impl Matrix {
-    fn new(data: Vec<Vec<f64>>) -> Matrix{
+pub trait MatrixOps {
+    fn new(data: Vec<Vec<f64>>) -> Matrix;
+    fn activate_sigmoid(&mut self);
+    fn sigmoid(x: f64) -> f64;
+    fn transpose(&self) -> Matrix;
+    fn dot(&self, b: &Matrix) -> f64;
+    fn dot_const(&self, b: &f64) -> f64;
+    fn product(&self, b: &Matrix) -> Matrix;
+    fn mul(&self, b: &Matrix) -> Matrix;
+    fn mul_const(&self, b: f64) -> Matrix;
+    fn show(&self);
+}
+
+impl MatrixOps for Matrix {
+    fn new(data: Vec<Vec<f64>>) -> Matrix {
         let rows = data.len();
-        assert_ne!(rows,0);
+        assert_ne!(rows, 0);
         let cols = data[0].len();
-        assert_ne!(cols,0);
-        Matrix{ data, rows, cols }
+        assert_ne!(cols, 0);
+        Matrix { data, rows, cols }
     }
 
-    fn sigmoid(x:f64) -> f64 {
-        let e = std::f64::consts::E;
-        let res = 1.0/(1.0 + e.powf(-1.0*x));
-        res
-    }
-
-    fn activate_sigmoid(&mut self){
+    fn activate_sigmoid(&mut self) {
         for row in 0..self.rows {
             for col in 0..self.cols {
                 self.data[row][col] = Matrix::sigmoid(self.data[row][col]);
@@ -30,29 +37,35 @@ impl Matrix {
         }
     }
 
-    fn transpose(&self) -> Matrix{
+    fn sigmoid(x: f64) -> f64 {
+        let e = std::f64::consts::E;
+        let res = 1.0 / (1.0 + e.powf(-1.0 * x));
+        res
+    }
+
+    fn transpose(&self) -> Matrix {
         let new_row = self.cols;
         let new_col = self.rows;
         let mut new_data = Vec::new();
 
         for row in 0..new_row {
             let mut line = Vec::new();
-            for col in 0..new_col{
+            for col in 0..new_col {
                 line.push(self.data[col][row]);
             }
             new_data.push(line);
         }
 
-        Matrix{
-            data:new_data,
-            rows:new_row,
-            cols:new_col,
+        Matrix {
+            data: new_data,
+            rows: new_row,
+            cols: new_col,
         }
     }
 
-    fn dot(&self, b: &Matrix) ->  f64{
-        assert_eq!(self.rows,b.rows);
-        assert_eq!(self.cols,b.cols);
+    fn dot(&self, b: &Matrix) -> f64 {
+        assert_eq!(self.rows, b.rows);
+        assert_eq!(self.cols, b.cols);
         let mut res = 0.0;
         for i in 0..self.rows {
             for j in 0..self.cols {
@@ -62,7 +75,7 @@ impl Matrix {
         res
     }
 
-    fn dot_const(&self, b: &f64) ->  f64{
+    fn dot_const(&self, b: &f64) -> f64 {
         let mut res = 0.0;
         for i in 0..self.rows {
             for j in 0..self.cols {
@@ -72,7 +85,7 @@ impl Matrix {
         res
     }
 
-    fn product(&self, b: &Matrix ) -> Matrix {
+    fn product(&self, b: &Matrix) -> Matrix {
         assert_eq!(self.cols, b.rows);
         let output_rows = self.rows;
         let output_cols = b.cols;
@@ -96,9 +109,9 @@ impl Matrix {
         }
     }
 
-    fn mul(&self, b: &Matrix) -> Matrix{
-        assert_eq!(self.rows,b.rows);
-        assert_eq!(self.cols,b.cols);
+    fn mul(&self, b: &Matrix) -> Matrix {
+        assert_eq!(self.rows, b.rows);
+        assert_eq!(self.cols, b.cols);
         let mut data = Vec::new();
 
         for row in 0..self.rows {
@@ -115,7 +128,7 @@ impl Matrix {
         }
     }
 
-    fn mul_const(&self,b:f64) -> Matrix {
+    fn mul_const(&self, b: f64) -> Matrix {
         let mut data = Vec::new();
 
         for row in 0..self.rows {
@@ -133,7 +146,7 @@ impl Matrix {
     }
 
     fn show(&self) {
-        print!("[INFO] Matrix Shape: {}x{} Data:\n[",self.rows,self.cols);
+        print!("[INFO] Matrix Shape: {}x{} Data:\n[", self.rows, self.cols);
         for row in 0..self.rows {
             print!("[");
             for col in 0..self.cols {
@@ -155,6 +168,7 @@ impl Matrix {
 mod tests {
 
     use super::Matrix;
+    use crate::matrix::MatrixOps;
 
     #[test]
     fn test_show() {
@@ -204,8 +218,8 @@ mod tests {
 
         let matrix2: Matrix = matrix1.transpose();
         matrix2.show();
-        assert_eq!(matrix1.cols,matrix2.rows);
-        assert_eq!(matrix1.rows,matrix2.cols);
+        assert_eq!(matrix1.cols, matrix2.rows);
+        assert_eq!(matrix1.rows, matrix2.cols);
         println!("********************************")
     }
 
@@ -213,46 +227,46 @@ mod tests {
     fn test_dot() {
         println!("********[TEST] Test Matrix Dot Function********");
         let row0: Vec<f64> = vec![0.9, 0.3, 0.4];
-        let data: Vec<Vec<f64>> = vec![row0,];
+        let data: Vec<Vec<f64>> = vec![row0];
         let matrix0: Matrix = Matrix::new(data);
         matrix0.show();
 
         let row0: Vec<f64> = vec![0.9, 0.3, 0.4];
-        let data: Vec<Vec<f64>> = vec![row0,];
+        let data: Vec<Vec<f64>> = vec![row0];
         let matrix1: Matrix = Matrix::new(data);
         matrix1.show();
 
-        let res  = matrix0.dot(&matrix1);
-        println!("{}",res);
+        let res = matrix0.dot(&matrix1);
+        println!("{}", res);
         println!("********************************");
-        assert_eq!(res,1.06);
+        assert_eq!(res, 1.06);
     }
 
     #[test]
     fn test_dot_const() {
         println!("********[TEST] Test Matrix Dot Const Function********");
         let row0: Vec<f64> = vec![0.9, 0.3, 0.4];
-        let data: Vec<Vec<f64>> = vec![row0,];
+        let data: Vec<Vec<f64>> = vec![row0];
         let matrix0: Matrix = Matrix::new(data);
         matrix0.show();
 
         let val = 0.5;
-        let res  = matrix0.dot_const(&val);
-        println!("{}",res);
+        let res = matrix0.dot_const(&val);
+        println!("{}", res);
         println!("********************************");
-        assert_eq!(res,0.8);
+        assert_eq!(res, 0.8);
     }
 
     #[test]
     fn test_mul() {
         println!("********[TEST] Test Matrix Mul Function********");
         let row0: Vec<f64> = vec![0.9, 0.3, 0.4];
-        let data: Vec<Vec<f64>> = vec![row0,];
+        let data: Vec<Vec<f64>> = vec![row0];
         let matrix0: Matrix = Matrix::new(data);
         matrix0.show();
 
         let row0: Vec<f64> = vec![0.9, 0.3, 0.4];
-        let data: Vec<Vec<f64>> = vec![row0,];
+        let data: Vec<Vec<f64>> = vec![row0];
         let matrix1: Matrix = Matrix::new(data);
         matrix1.show();
 
@@ -265,7 +279,7 @@ mod tests {
     fn test_mul_const() {
         println!("********[TEST] Test Matrix Mul Const Function********");
         let row0: Vec<f64> = vec![0.9, 0.3, 0.4];
-        let data: Vec<Vec<f64>> = vec![row0,];
+        let data: Vec<Vec<f64>> = vec![row0];
         let matrix0: Matrix = Matrix::new(data);
         matrix0.show();
 
@@ -280,7 +294,7 @@ mod tests {
     fn test_activate_sigmoid() {
         println!("********[TEST] Test Matrix Activate Sigmoid Function********");
         let row0: Vec<f64> = vec![0.975, 0.888, 1.254];
-        let data: Vec<Vec<f64>> = vec![row0,];
+        let data: Vec<Vec<f64>> = vec![row0];
         let mut matrix0: Matrix = Matrix::new(data);
         matrix0.show();
         matrix0.activate_sigmoid();
