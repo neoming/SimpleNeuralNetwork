@@ -5,10 +5,11 @@ pub struct Matrix {
     cols: usize,
 }
 
-use rand::Rng;
+use rand::prelude::*;
 
 pub trait MatrixOps {
     fn new(data: Vec<Vec<f64>>) -> Matrix;
+    fn new_by_rand(row: usize, col: usize) -> Matrix;
     fn activate_sigmoid(&mut self);
     fn sigmoid(x: f64) -> f64;
     fn transpose(&self) -> Matrix;
@@ -23,10 +24,26 @@ pub trait MatrixOps {
 impl MatrixOps for Matrix {
     fn new(data: Vec<Vec<f64>>) -> Matrix {
         let rows = data.len();
-        assert_ne!(rows, 0);
+        assert!(rows > 0);
         let cols = data[0].len();
-        assert_ne!(cols, 0);
+        assert!(cols > 0);
         Matrix { data, rows, cols }
+    }
+
+    fn new_by_rand(rows: usize, cols: usize) -> Matrix {
+        assert!(rows > 0);
+        assert!(cols > 0);
+        let mut rand = rand::thread_rng();
+        let mut data = Vec::new();
+        for _row in 0..rows {
+            let mut row_data = Vec::new();
+            for _col in 0..cols {
+                let data :f64 = rand.gen();
+                row_data.push(data);
+            }
+            data.push(row_data);
+        }
+        Matrix::new(data)
     }
 
     fn activate_sigmoid(&mut self) {
@@ -299,6 +316,14 @@ mod tests {
         matrix0.show();
         matrix0.activate_sigmoid();
         matrix0.show();
+        println!("********************************");
+    }
+
+    #[test]
+    fn test_new_by_rand() {
+        println!("********[TEST] Test Matrix New By Rand Function********");
+        let a : Matrix = Matrix::new_by_rand(3,3);
+        a.show();
         println!("********************************");
     }
 }

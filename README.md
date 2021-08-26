@@ -1,6 +1,10 @@
 # Simple Neural Network
-This repo implement a simple NN(Neural Network). The code is written in `Rust`.
+This repo implement a simple NN(Neural Network) for fun. The code is written in `Rust`.Development work continues...
 
+`TODO` List
+- [x] Matrix
+- [ ] MLP Model Inference
+- [ ] MLP Model BP
 ## How to run this code
 1. You need to install rust on your pc
 2. Clone this repo
