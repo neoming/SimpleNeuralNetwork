@@ -1,37 +1,37 @@
-use crate::matrix::{Matrix,MatrixOps};
+use crate::matrix::{Matrix, MatrixOps};
 
 #[derive(Debug)]
 pub struct Layer {
-    input_size:usize,
-    output_size:usize,
-    weights_matrix:Matrix,
+    input_size: usize,
+    output_size: usize,
+    pub(crate) weights_matrix: Matrix,
 }
 
 impl Layer {
-    pub fn new(data: Matrix) -> Layer{
+    pub fn new(data: Matrix) -> Layer {
         Layer {
-            input_size:data.rows,
-            output_size:data.cols,
-            weights_matrix:data,
+            input_size: data.rows,
+            output_size: data.cols,
+            weights_matrix: data,
         }
     }
 
-    pub fn new_by_rand(input_size:usize,output_size:usize)->Layer {
-        Layer{
+    pub fn new_by_rand(input_size: usize, output_size: usize) -> Layer {
+        Layer {
             input_size,
             output_size,
-            weights_matrix: Matrix::new_by_rand(output_size,input_size)
+            weights_matrix: Matrix::new_by_rand(output_size, input_size),
         }
     }
 
     pub fn show(&self) {
-        println!("[INFO] Layer input size: {}",self.input_size);
-        println!("[INFO] Layer output size: {}",self.output_size);
-        println!("[INFO] Layer weights matrix: ");
+        println!("[Layer] input size: {}", self.input_size);
+        println!("[Layer] output size: {}", self.output_size);
+        print!("[Layer] weights matrix: ");
         self.weights_matrix.show();
     }
 
-    pub fn call(&self,input:&Matrix) -> Matrix {
+    pub fn call(&self, input: &Matrix) -> Matrix {
         let mut res = self.weights_matrix.product(input);
         res.activate_sigmoid();
         res
@@ -39,18 +39,18 @@ impl Layer {
 }
 
 #[cfg(test)]
-mod nn_tests {
+mod layer_tests {
     use crate::layer::Layer;
-    use crate::matrix::{Matrix,MatrixOps};
+    use crate::matrix::{Matrix, MatrixOps};
 
     #[test]
-    fn test_show(){
-        let layer = Layer::new_by_rand(3,3);
+    fn test_show() {
+        let layer = Layer::new_by_rand(3, 3);
         layer.show();
     }
 
     #[test]
-    fn test_call(){
+    fn test_call() {
         let weights = Matrix::new(vec![
             vec![0.9, 0.3, 0.4],
             vec![0.2, 0.8, 0.2],

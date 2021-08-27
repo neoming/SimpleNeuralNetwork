@@ -6,10 +6,21 @@ pub struct Matrix {
 }
 
 use rand::prelude::*;
+impl Clone for Matrix {
+    fn clone(&self) -> Matrix {
+        Matrix {
+            data: self.data.clone(),
+            rows: self.rows,
+            cols: self.cols,
+        }
+    }
+}
 
 pub trait MatrixOps {
     fn new(data: Vec<Vec<f64>>) -> Matrix;
     fn new_by_rand(row: usize, col: usize) -> Matrix;
+    fn zeros(row: usize, col: usize) -> Matrix;
+    fn ones(row: usize, col: usize) -> Matrix;
     fn activate_sigmoid(&mut self);
     fn sigmoid(x: f64) -> f64;
     fn transpose(&self) -> Matrix;
@@ -18,6 +29,8 @@ pub trait MatrixOps {
     fn product(&self, b: &Matrix) -> Matrix;
     fn mul(&self, b: &Matrix) -> Matrix;
     fn mul_const(&self, b: f64) -> Matrix;
+    fn add(&self, b: &Matrix) -> Matrix;
+    fn sub(&self, b: &Matrix) -> Matrix;
     fn show(&self);
 }
 
@@ -38,8 +51,36 @@ impl MatrixOps for Matrix {
         for _row in 0..rows {
             let mut row_data = Vec::new();
             for _col in 0..cols {
-                let data :f64 = rand.gen();
+                let data: f64 = rand.gen();
                 row_data.push(data - 0.5);
+            }
+            data.push(row_data);
+        }
+        Matrix::new(data)
+    }
+
+    fn zeros(rows: usize, cols: usize) -> Matrix {
+        assert!(rows > 0);
+        assert!(cols > 0);
+        let mut data = Vec::new();
+        for _row in 0..rows {
+            let mut row_data = Vec::new();
+            for _col in 0..cols {
+                row_data.push(0.0);
+            }
+            data.push(row_data);
+        }
+        Matrix::new(data)
+    }
+
+    fn ones(rows: usize, cols: usize) -> Matrix {
+        assert!(rows > 0);
+        assert!(cols > 0);
+        let mut data = Vec::new();
+        for _row in 0..rows {
+            let mut row_data = Vec::new();
+            for _col in 0..cols {
+                row_data.push(1.0);
             }
             data.push(row_data);
         }
@@ -162,8 +203,49 @@ impl MatrixOps for Matrix {
         }
     }
 
+    fn add(&self, b: &Matrix) -> Matrix {
+        assert_eq!(self.rows, b.rows);
+        assert_eq!(self.cols, b.cols);
+
+        let mut data = Vec::new();
+        for row in 0..self.rows {
+            let mut line = Vec::new();
+            for col in 0..self.cols {
+                line.push(self.data[row][col] + b.data[row][col]);
+            }
+            data.push(line);
+        }
+        Matrix {
+            data,
+            rows: self.rows,
+            cols: self.cols,
+        }
+    }
+
+    fn sub(&self, b: &Matrix) -> Matrix {
+        assert_eq!(self.rows, b.rows);
+        assert_eq!(self.cols, b.cols);
+
+        let mut data = Vec::new();
+        for row in 0..self.rows {
+            let mut line = Vec::new();
+            for col in 0..self.cols {
+                line.push(self.data[row][col] - b.data[row][col]);
+            }
+            data.push(line);
+        }
+        Matrix {
+            data,
+            rows: self.rows,
+            cols: self.cols,
+        }
+    }
+
     fn show(&self) {
-        print!("[INFO] Matrix Shape: {}x{} Data:\n[", self.rows, self.cols);
+        print!(
+            "[Matrix] Matrix Shape: {}x{} Data:\n[",
+            self.rows, self.cols
+        );
         for row in 0..self.rows {
             print!("[");
             for col in 0..self.cols {
@@ -322,8 +404,32 @@ mod matrix_tests {
     #[test]
     fn test_new_by_rand() {
         println!("********[TEST] Test Matrix New By Rand Function********");
-        let a : Matrix = Matrix::new_by_rand(3,3);
+        let a: Matrix = Matrix::new_by_rand(3, 3);
         a.show();
+        println!("********************************");
+    }
+
+    #[test]
+    fn test_add() {
+        println!("********[TEST] Test Matrix Add Function********");
+        let a: Matrix = Matrix::new_by_rand(3, 3);
+        a.show();
+        let b: Matrix = Matrix::new_by_rand(3, 3);
+        b.show();
+        let c = a.add(&b);
+        c.show();
+        println!("********************************");
+    }
+
+    #[test]
+    fn test_sub() {
+        println!("********[TEST] Test Matrix Sub Function********");
+        let a: Matrix = Matrix::new_by_rand(3, 3);
+        a.show();
+        let b: Matrix = Matrix::new_by_rand(3, 3);
+        b.show();
+        let c = a.sub(&b);
+        c.show();
         println!("********************************");
     }
 }
