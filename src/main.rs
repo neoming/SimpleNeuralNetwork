@@ -1,20 +1,18 @@
-use neuralnetwork::matrix::*;
+use neuralnetwork::dataset::read_csv_by_path;
+use neuralnetwork::matrix::{Matrix,MatrixOps};
+use neuralnetwork::layer::Layer;
+use neuralnetwork::nn::NeuralNetwork;
 
 fn main() {
-    let weights = Matrix::new(vec![
-        vec![0.9, 0.3, 0.4],
-        vec![0.2, 0.8, 0.2],
-        vec![0.1, 0.5, 0.6],
-    ]);
-    println!("Weights:");
-    weights.show();
+    // read data
+    let (label,data) = read_csv_by_path("data/mnist_test_10.csv").unwrap();
 
-    let inputs = Matrix::new(vec![vec![0.9, 0.1, 0.8]]);
-    let inputs = inputs.transpose();
-    println!("Inputs:");
-    inputs.show();
+    // new neural network
+    let mut nn = NeuralNetwork::new(vec![784, 256, 10]);
+    nn.show();
 
-    let result = weights.product(&inputs);
-    println!("Results:");
-    result.show();
+
+    for i in 0..label.len(){
+        nn.train(&data[i].transpose(), &label[i].transpose());
+    }
 }

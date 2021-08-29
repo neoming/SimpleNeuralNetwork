@@ -31,6 +31,7 @@ pub trait MatrixOps {
     fn mul_const(&self, b: f64) -> Matrix;
     fn add(&self, b: &Matrix) -> Matrix;
     fn sub(&self, b: &Matrix) -> Matrix;
+    fn div_by_const(&self,b: f64) -> Matrix;
     fn show(&self);
 }
 
@@ -241,6 +242,23 @@ impl MatrixOps for Matrix {
         }
     }
 
+    fn div_by_const(&self,b: f64) -> Matrix {
+        let mut data = Vec::new();
+
+        for row in 0..self.rows {
+            let mut line = Vec::new();
+            for col in 0..self.cols {
+                line.push(self.data[row][col] / b);
+            }
+            data.push(line);
+        }
+        Matrix {
+            data,
+            rows: self.rows,
+            cols: self.cols,
+        }
+    }
+
     fn show(&self) {
         print!(
             "[Matrix] Matrix Shape: {}x{} Data:\n[",
@@ -279,7 +297,7 @@ mod matrix_tests {
 
         let matrix: Matrix = Matrix::new(data);
         matrix.show();
-        println!("********************************")
+        println!("********************************");
     }
 
     #[test]
@@ -301,7 +319,7 @@ mod matrix_tests {
 
         let matrix2: Matrix = matrix0.product(&matrix1);
         matrix2.show();
-        println!("********************************")
+        println!("********************************");
     }
 
     #[test]
@@ -319,7 +337,7 @@ mod matrix_tests {
         matrix2.show();
         assert_eq!(matrix1.cols, matrix2.rows);
         assert_eq!(matrix1.rows, matrix2.cols);
-        println!("********************************")
+        println!("********************************");
     }
 
     #[test]
@@ -429,6 +447,16 @@ mod matrix_tests {
         let b: Matrix = Matrix::new_by_rand(3, 3);
         b.show();
         let c = a.sub(&b);
+        c.show();
+        println!("********************************");
+    }
+
+    #[test]
+    fn test_div_const() {
+        println!("********[TEST] Test Matrix Div By Const Function********");
+        let a: Matrix = Matrix::new_by_rand(3, 3);
+        a.show();
+        let c = a.div_by_const(2.0);
         c.show();
         println!("********************************");
     }

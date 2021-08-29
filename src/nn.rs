@@ -2,13 +2,13 @@ use crate::layer::Layer;
 use crate::matrix::{Matrix, MatrixOps};
 
 #[derive(Debug)]
-struct NeuralNetwork {
+pub struct NeuralNetwork {
     lr: f64,
     layers: Vec<Layer>,
 }
 
 impl NeuralNetwork {
-    fn new(shape: Vec<usize>) -> NeuralNetwork {
+    pub fn new(shape: Vec<usize>) -> NeuralNetwork {
         let mut layers = Vec::new();
         let len = shape.len();
         for i in 1..len {
@@ -16,7 +16,7 @@ impl NeuralNetwork {
         }
         NeuralNetwork { lr: 0.01, layers }
     }
-    fn inference(&self, input: Matrix) -> Matrix {
+    pub fn inference(&self, input: Matrix) -> Matrix {
         let mut res = input;
         for layer in self.layers.iter() {
             layer.show();
@@ -26,9 +26,9 @@ impl NeuralNetwork {
         res
     }
 
-    fn train(&mut self, input: &Matrix, label: &Matrix) {
+    pub fn train(&mut self, input: &Matrix, label: &Matrix) {
         // inference and save output
-        println!("Inference");
+        println!("[Neural Network] Inference");
         let mut layer_outputs = Vec::new();
         let mut res = input.clone();
         layer_outputs.push(input.clone());
@@ -40,7 +40,7 @@ impl NeuralNetwork {
         // for output in layer_outputs.iter() { output.show(); }
 
         // calculate err -> update weights
-        println!("Err BP");
+        println!("[Neural Network] Err BP");
         let mut layer_errs = Vec::new();
         let length = layer_outputs.len();
         let mut err= Matrix::zeros(1,1);
@@ -52,6 +52,7 @@ impl NeuralNetwork {
         }
         // for err in layer_errs.iter() { err.show(); }
 
+        println!("[Neural Network] Update weight");
         // update weight
         let length = layer_errs.len();
         for i in 0..length - 1 {
@@ -64,9 +65,13 @@ impl NeuralNetwork {
             gradient = gradient.mul_const(self.lr);
             self.layers[index - 1].weights_matrix = self.layers[index - 1].weights_matrix.add(&gradient);
         }
+        println!("[Neural Network] Predict Result:");
+        res.transpose().show();
+        println!("[Neural Network] True Label:");
+        label.transpose().show();
     }
 
-    fn show(&self) {
+    pub fn show(&self) {
         println!("[Neural Network] learning rate: {}", self.lr);
         println!("[Neural Network] layers: ");
         for layer in self.layers.iter() {
@@ -94,7 +99,7 @@ mod nn_tests {
         let inputs = Matrix::new(vec![vec![0.9, 0.1, 0.8]]);
         let label = Matrix::new(vec![vec![1.0]]);
         let inputs = inputs.transpose();
-        for i in 0..10 {
+        for _i in 0..10 {
             nn.show();
             nn.train(&inputs, &label);
             nn.show();
