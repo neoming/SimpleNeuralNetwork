@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub struct Matrix {
-    data: Vec<Vec<f64>>,
+    pub(crate) data: Vec<Vec<f64>>,
     pub(crate) rows: usize,
     pub(crate) cols: usize,
 }
@@ -31,7 +31,7 @@ pub trait MatrixOps {
     fn mul_const(&self, b: f64) -> Matrix;
     fn add(&self, b: &Matrix) -> Matrix;
     fn sub(&self, b: &Matrix) -> Matrix;
-    fn div_by_const(&self,b: f64) -> Matrix;
+    fn div_by_const(&self, b: f64) -> Matrix;
     fn show(&self);
 }
 
@@ -242,7 +242,7 @@ impl MatrixOps for Matrix {
         }
     }
 
-    fn div_by_const(&self,b: f64) -> Matrix {
+    fn div_by_const(&self, b: f64) -> Matrix {
         let mut data = Vec::new();
 
         for row in 0..self.rows {

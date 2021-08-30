@@ -1,3 +1,4 @@
+use crate::dataset::show_result;
 use crate::layer::Layer;
 use crate::matrix::{Matrix, MatrixOps};
 
@@ -14,21 +15,20 @@ impl NeuralNetwork {
         for i in 1..len {
             layers.push(Layer::new_by_rand(shape[i - 1], shape[i]))
         }
-        NeuralNetwork { lr: 0.01, layers }
+        NeuralNetwork { lr: 0.3, layers }
     }
     pub fn inference(&self, input: Matrix) -> Matrix {
         let mut res = input;
         for layer in self.layers.iter() {
-            layer.show();
+            // layer.show();
             res = layer.call(&res);
-            res.show();
+            // res.show();
         }
         res
     }
 
-    pub fn train(&mut self, input: &Matrix, label: &Matrix) {
+    pub fn train(&mut self, input: &Matrix, label: &Matrix) -> Matrix {
         // inference and save output
-        println!("[Neural Network] Inference");
         let mut layer_outputs = Vec::new();
         let mut res = input.clone();
         layer_outputs.push(input.clone());
@@ -37,22 +37,21 @@ impl NeuralNetwork {
             // res.show();
             layer_outputs.push(res.clone());
         }
-        // for output in layer_outputs.iter() { output.show(); }
 
         // calculate err -> update weights
-        println!("[Neural Network] Err BP");
         let mut layer_errs = Vec::new();
         let length = layer_outputs.len();
-        let mut err= Matrix::zeros(1,1);
+        let mut err = Matrix::zeros(1, 1);
         for i in 0..length {
             let index = length - i - 1;
-            if i == 0 { err = label.sub(&layer_outputs[index]); }
-            else{ err = self.layers[index].weights_matrix.transpose().product(&err); }
+            if i == 0 {
+                err = label.sub(&layer_outputs[index]);
+            } else {
+                err = self.layers[index].weights_matrix.transpose().product(&err);
+            }
             layer_errs.push(err.clone());
         }
-        // for err in layer_errs.iter() { err.show(); }
 
-        println!("[Neural Network] Update weight");
         // update weight
         let length = layer_errs.len();
         for i in 0..length - 1 {
@@ -63,12 +62,15 @@ impl NeuralNetwork {
             gradient = tmp.mul(&gradient);
             gradient = gradient.product(&layer_outputs[index - 1].transpose());
             gradient = gradient.mul_const(self.lr);
-            self.layers[index - 1].weights_matrix = self.layers[index - 1].weights_matrix.add(&gradient);
+            self.layers[index - 1].weights_matrix =
+                self.layers[index - 1].weights_matrix.add(&gradient);
         }
-        println!("[Neural Network] Predict Result:");
-        res.transpose().show();
-        println!("[Neural Network] True Label:");
-        label.transpose().show();
+        res.transpose()
+    }
+
+    pub fn eval(&self, input: &Matrix, label: &Matrix) {
+        let pred = self.inference(input.clone());
+        show_result(pred.transpose(), label.clone());
     }
 
     pub fn show(&self) {

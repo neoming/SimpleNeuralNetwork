@@ -27,7 +27,10 @@ impl Layer {
     pub fn show(&self) {
         println!("[Layer] input size: {}", self.input_size);
         println!("[Layer] output size: {}", self.output_size);
-        println!("[Layer] weights matrix: {}x{}",self.weights_matrix.rows,self.weights_matrix.cols);
+        println!(
+            "[Layer] weights matrix: {}x{}",
+            self.weights_matrix.rows, self.weights_matrix.cols
+        );
         // self.weights_matrix.show();
     }
 
